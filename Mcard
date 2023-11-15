@@ -6,7 +6,7 @@ def show_materials():
     material_name = material_name_entry.get()
     material_density = material_density_entry.get()
     num_elements = int(num_elements_var.get())
-    num_nucildes = int(num_nuclides_var.get())
+    num_nuclides = int(num_nuclides_var.get())
     elements = []
     nuclides = []
     message = f"{component_name} = openmc.Material(name='{material_name}')\n{component_name}.set_density('g/cm3', {material_density})\n"
@@ -14,7 +14,7 @@ def show_materials():
         element_name = element_name_entries[i].get()
         element_weight = element_weight_entries[i].get()
         elements.append((element_name, element_weight))
-    for i in range(num_nucildes):
+    for i in range(num_nuclides):
         nuclide_name = nuclide_name_entries[i].get()
         nuclide_weight = nuclide_weight_entries[i].get()
         nuclides.append((nuclide_name, nuclide_weight))
@@ -22,10 +22,53 @@ def show_materials():
         message += f"{component_name}.add_element('{element[0]}', {element[1]})\n"
     for nuclide in nuclides:
         message += f"{component_name}.add_nuclide('{nuclide[0]}', {nuclide[1]})\n"
-    with open("output.txt", "w") as f:
+    message += "\n"
+    with open("output.txt", "a") as f:
         f.write(message)
     messagebox.showinfo("材料定义信息", f"{message}\n输出至output.txt")
 
+def add_elements():
+    num_elements = int(num_elements_var.get())
+    if num_elements > 0 and num_elements <= 10:
+        for i in range(num_elements):
+            element_name_label = tk.Label(root, text=f"元素 {i+1} ")
+            element_weight_label = tk.Label(root, text=f"原子比例")
+            element_name_entry = tk.Entry(root)
+            element_weight_entry = tk.Entry(root)
+            element_name_labels.append(element_name_label)
+            element_weight_labels.append(element_weight_label)
+            element_name_entries.append(element_name_entry)
+            element_weight_entries.append(element_weight_entry)
+
+            element_name_labels[-1].grid(row=i+3)
+            element_weight_labels[-1].grid(row=i+3, column=2)
+            element_name_entries[-1].grid(row=i+3, column=1)
+            element_weight_entries[-1].grid(row=i+3, column=3)
+    else:
+        messagebox.showerror("错误", "元素数量应在0到10之间")
+
+def add_nuclides():
+    num_nuclides = int(num_nuclides_var.get())
+    if num_nuclides > 0 and num_nuclides <= 10:
+        for i in range(num_nuclides):
+            nuclide_name_label = tk.Label(root, text=f"核素 {i + 1} ")
+            nuclide_weight_label = tk.Label(root, text=f"原子比例")
+            nuclide_name_entry = tk.Entry(root)
+            nuclide_weight_entry = tk.Entry(root)
+            nuclide_name_labels.append(nuclide_name_label)
+            nuclide_weight_labels.append(nuclide_weight_label)
+            nuclide_name_entries.append(nuclide_name_entry)
+            nuclide_weight_entries.append(nuclide_weight_entry)
+
+            nuclide_name_labels[-1].grid(row=i + 14)
+            nuclide_weight_labels[-1].grid(row=i + 14, column=2)
+            nuclide_name_entries[-1].grid(row=i + 14, column=1)
+            nuclide_weight_entries[-1].grid(row=i + 14, column=3)
+    else:
+        messagebox.showerror("错误", "核素数量应在0到10之间")
+        
+with open("output.txt", "w") as f:
+    f.close()
 root = tk.Tk()
 root.title("材料卡")
 
@@ -45,63 +88,33 @@ material_density_entry.grid(row=1, column=1)
 
 num_elements_label = tk.Label(root, text="元素数量")
 num_elements_label.grid(row=2)
-num_elements_var = tk.StringVar(value="1")
-num_elements_optionmenu = tk.OptionMenu(root, num_elements_var, *range(0, 11))
+num_elements_var = tk.StringVar(value="0")
+num_elements_optionmenu = tk.OptionMenu(root, num_elements_var, *range(1,11))
 num_elements_optionmenu.grid(row=2, column=1)
+tk.Button(root, text="添加元素", command=add_elements).grid(row=2, column=2)
+
+num_nuclides_label = tk.Label(root, text="核素数量")
+num_nuclides_label.grid(row=13)
+num_nuclides_var = tk.StringVar(value="0")
+num_nuclides_optionmenu = tk.OptionMenu(root, num_nuclides_var, *range(1, 11))
+num_nuclides_optionmenu.grid(row=13, column=1)
+tk.Button(root, text="添加核素", command=add_nuclides).grid(row=13, column=2)
 
 element_name_labels = []
 element_weight_labels = []
 element_name_entries = []
 element_weight_entries = []
 
-for i in range(10):
-    element_name_label = tk.Label(root, text=f"元素 {i+1} ")
-    element_weight_label = tk.Label(root, text=f"原子比例")
-    element_name_entry = tk.Entry(root)
-    element_weight_entry = tk.Entry(root)
-    element_name_labels.append(element_name_label)
-    element_weight_labels.append(element_weight_label)
-    element_name_entries.append(element_name_entry)
-    element_weight_entries.append(element_weight_entry)
+nuclide_name_labels = []
+nuclide_weight_labels = []
+nuclide_name_entries = []
+nuclide_weight_entries = []
 
-for i in range(10):
-    element_name_labels[i].grid(row=i+3)
-    element_weight_labels[i].grid(row=i+3, column=2)
-    element_name_entries[i].grid(row=i+3, column=1)
-    element_weight_entries[i].grid(row=i+3, column=3)
-  
-    num_nuclides_label = tk.Label(root, text="核素数量")
-    num_nuclides_label.grid(row=13)
-    num_nuclides_var = tk.StringVar(value="1")
-    num_nuclides_optionmenu = tk.OptionMenu(root, num_nuclides_var, *range(0, 11))
-    num_nuclides_optionmenu.grid(row=13, column=1)
-
-    nuclide_name_labels = []
-    nuclide_weight_labels = []
-    nuclide_name_entries = []
-    nuclide_weight_entries = []
-
-    for i in range(10):
-        nuclide_name_label = tk.Label(root, text=f"核素 {i + 1} ")
-        nuclide_weight_label = tk.Label(root, text=f"原子比例")
-        nuclide_name_entry = tk.Entry(root)
-        nuclide_weight_entry = tk.Entry(root)
-        nuclide_name_labels.append(nuclide_name_label)
-        nuclide_weight_labels.append(nuclide_weight_label)
-        nuclide_name_entries.append(nuclide_name_entry)
-        nuclide_weight_entries.append(nuclide_weight_entry)
-
-    for i in range(10):
-        nuclide_name_labels[i].grid(row=i + 14)
-        nuclide_weight_labels[i].grid(row=i + 14, column=2)
-        nuclide_name_entries[i].grid(row=i + 14, column=1)
-        nuclide_weight_entries[i].grid(row=i + 14, column=3)
-
-tk.Button(root, text="输出", command=show_materials).grid(row=24)
+output_button = tk.Button(root, text="输出", command=show_materials)
+output_button.grid(row=15)
 
 root.mainloop()
 
-#version:0.02
-#Date:2023/06/01
-#author:FuHaoCheng
-
+# version:1.01
+# Date:2023/11/15
+# author:FHC
